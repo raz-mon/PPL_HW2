@@ -21,6 +21,9 @@ console.log(p("(define x 5)")); // { tag: 'Ok', value: [ 'define', 'x', '5' ] }
 //console.log(p("1")); // { tag: 'Ok', value: '1' }
 //console.log("%j", p(" ( y lambda (x) ( * 2 x ) ( lambda (x) ( 3 * x ) ) )"));
 console.log("%j", p(" ( first (lambda () a) )"));
+console.log(p("a"));
+const a = [1,2,3,4];
+console.log(a.reduce( (acc: number[][], curr: number) => acc.concat([[curr]]) , []));
 
 //console.log("%j", parseL31("( L31 (lambda (x) ( * 2 x) (lambda (x) ( 3 * x) ) ) )") ) ;
 //console.log("%j", parseL31("( L31 (y lambda x (+ 2 x)))"));
