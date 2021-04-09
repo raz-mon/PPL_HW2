@@ -1,4 +1,9 @@
 
+
+raz
+almog
+
+
 (define empty?
   (lambda (lst)
     (eq? lst '())
