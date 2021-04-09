@@ -1,6 +1,6 @@
 // ===========================================================
 // AST type models
-import { all, map, reduce, zipWith } from "ramda";
+import { all, map, partial, reduce, zipWith } from "ramda";
 import { makeEmptySExp, makeSymbolSExp, SExpValue, makeCompoundSExp, valueToString } from '../imp/L3-value'
 import { first, second, rest, allT, isEmpty } from "../shared/list";
 import { isArray, isString, isNumericString, isIdentifier } from "../shared/type-predicates";
@@ -233,23 +233,24 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
 
 // added.
 export const parseClassExp(fields: Sexp[], methods: Sexp[]): Result<ClassExp> => 
-    !isEmpty(fields) && !isEmpty(methods) ? 
+    !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
     safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
-    (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(makeBinding, methods) ) )
-    :
+    (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(methods) ) ) :
     makeFailure(`Invalid vaes for ClassExp`);
 
-    // test: matMethods2Bindings(makeBinding, ["first", ["lambda", [], "a"]]) -> Binding(first, val: )
-export const mapMethods2Bindings(func:(v: string, val: CExp) => Binding, methods: Sexp[]): Binding[] =>
-    makeBinding(first(methods), map(parseL31CExp, methods[1])
-
-export const mapMethods2Binding(...)
-
-export const fields2strings(fileds: Sexp[]): string[] =>
-    fields.reduce((curr: Sexp, acc: string[]) => curr, [])
+export const mapMethods2Bindings(methods: Sexp[]): Binding[] =>
+    allT(isToken, map((x: any) => first(x), methods)) ?
+    methods.reduce( (acc: Binding[], curr: Sexp) => 
+    {
+        //isCompoundSExp(curr) && ? 
+        //isToken(first(curr))
+        let x = curr[0];
+        isToken(x) ?
+        return acc.concat([ makeBinding(x, (parseL31CExp(rest(curr))).value  ) ])
+    }, []
+        )
     
-
-    // temp
+/*
 export const parseClassExpTemp(fields: Sexp[], methods: Sexp[]): Result<ClassExp> => 
     isEmpty(fields) || isEmpty(methods) ? makeFailure("Fill this in") :
     all(isCompoundSExp)(fields) ? makeFailure("Fields should not be compound") :
@@ -261,6 +262,7 @@ export const parseClassExpTemp(fields: Sexp[], methods: Sexp[]): Result<ClassExp
     (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(makeBinding, methods) ) )
     :
     makeFailure(`Invalid vaes for ClassExp`);
+*/
 
 /*
 safe2((rator: CExp, rands: CExp[]) => makeOk(makeAppExp(rator, rands)))
@@ -274,6 +276,19 @@ export const makeBinding = (v: string, val: CExp): Binding =>
     ({tag: "Binding", var: makeVarDecl(v), val: val});
 */
 // export const makeClassExp = (fields: VarDecl[], methods: Binding[])
+/*
+    // test: matMethods2Bindings(makeBinding, ["first", ["lambda", [], "a"]]) -> Binding(first, val: )
+export const mapMethods2Bindings(func:(v: string, val: CExp) => Binding, methods: Sexp[]): Binding[] =>
+    makeBinding(first(methods), map(parseL31CExp, methods[1])
+
+export const mapMethods2Binding(...)
+
+export const fields2strings(fileds: Sexp[]): string[] =>
+    fields.reduce((curr: Sexp, acc: string[]) => curr, [])
+
+    // temp
+*/
+
 
 const isGoodBindings = (bindings: Sexp): bindings is [string, Sexp][] =>
     isArray(bindings) &&
