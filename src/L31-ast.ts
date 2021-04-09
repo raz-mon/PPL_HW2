@@ -4,7 +4,7 @@ import { all, map, partial, reduce, zipWith } from "ramda";
 import { makeEmptySExp, makeSymbolSExp, SExpValue, makeCompoundSExp, valueToString } from '../imp/L3-value'
 import { first, second, rest, allT, isEmpty } from "../shared/list";
 import { isArray, isString, isNumericString, isIdentifier } from "../shared/type-predicates";
-import { Result, makeOk, makeFailure, bind, mapResult, safe2 } from "../shared/result";
+import { Result, makeOk, makeFailure, bind, mapResult, safe2, isOk } from "../shared/result";
 import { parse as p, isSexpString, isToken } from "../shared/parser";
 import { Sexp, Token } from "s-expression";
 
@@ -231,6 +231,24 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
     makeFailure(`Invalid vars for ProcExp`);
 
 
+
+export const parseClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
+    !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
+    safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
+    (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(methods) ) ) :
+    makeFailure(`Invalid vaes for ClassExp`);   
+
+export const mapMethods2Bindings(methods: Sexp[]): Binding[] =>
+    map(makeSingleBinding , methods);
+
+export const mapSexp2Binding(single: Sexp): Binding => {
+    isCompoundSExp(single) ?
+        bind(parseL31CExp(rest(single)), (cexp: CExp) => makeBinding(first(single), cexp) ) :
+        0
+    }
+
+
+/*
 // added.
 export const parseClassExp(fields: Sexp[], methods: Sexp[]): Result<ClassExp> => 
     !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
@@ -244,12 +262,13 @@ export const mapMethods2Bindings(methods: Sexp[]): Binding[] =>
     {
         //isCompoundSExp(curr) && ? 
         //isToken(first(curr))
-        let x = curr[0];
-        isToken(x) ?
-        return acc.concat([ makeBinding(x, (parseL31CExp(rest(curr))).value  ) ])
+        isCompoundSExp(curr) && isToken(first(curr) && isArray(curr) ?
+        acc.concat([ makeBinding(first(curr), (parseL31CExp(rest(curr))).value  ) ]) :
+        []
     }, []
         )
-    
+*/
+
 /*
 export const parseClassExpTemp(fields: Sexp[], methods: Sexp[]): Result<ClassExp> => 
     isEmpty(fields) || isEmpty(methods) ? makeFailure("Fill this in") :
