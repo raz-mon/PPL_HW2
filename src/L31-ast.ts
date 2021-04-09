@@ -324,7 +324,7 @@ const unparseLetExp = (le: LetExp) : string =>
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
 const unparseClassExp = (ce: ClassExp): string =>
-    `(class (${map((b: ))}))`
+    `(class (${map((b: ?????))}))`
 
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
@@ -340,8 +340,6 @@ export const unparseL31 = (exp: Program | Exp): string =>
     isDefineExp(exp) ? `(define ${exp.var.var} ${unparseL31(exp.val)})` :
     isProgram(exp) ? `(L31 ${unparseLExps(exp.exps)})` :
     
-    //isClassExp(exp) ? `(L31 ${unparseLExps(exp.exps)})` :     // I tried.
-
-                         // I (raz) added this because it arised an error since there is no unparse for 'ClassExp' that we built.
+    isClassExp(exp) ? unparseClassExp(exp) :     // I tried.
     exp;                  // This is the original ending (the function never get's here originally).
 
