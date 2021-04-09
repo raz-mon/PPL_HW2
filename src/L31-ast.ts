@@ -5,7 +5,7 @@ import { makeEmptySExp, makeSymbolSExp, SExpValue, makeCompoundSExp, valueToStri
 import { first, second, rest, allT, isEmpty } from "../shared/list";
 import { isArray, isString, isNumericString, isIdentifier } from "../shared/type-predicates";
 import { Result, makeOk, makeFailure, bind, mapResult, safe2, isOk } from "../shared/result";
-import { parse as p, isSexpString, isToken } from "../shared/parser";
+import { parse as p, isSexpString, isToken, isCompoundSexp } from "../shared/parser";       // added isCompundSexp
 import { Sexp, Token } from "s-expression";
 
 /*
@@ -231,83 +231,23 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
     makeFailure(`Invalid vars for ProcExp`);
 
 
-
 export const parseClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
     !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
     safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
-    (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(methods) ) ) :
+    (makeOk(map(makeVarDecl, fields)), mapMethods2Bindings(methods) ) :
     makeFailure(`Invalid vaes for ClassExp`);   
 
-export const mapMethods2Bindings(methods: Sexp[]): Binding[] =>
-    map(makeSingleBinding , methods);
+export const mapMethods2Bindings = (methods: Sexp[]): Result<Binding[]> =>
+    mapResult(mapSexp2Binding , methods);
 
-export const mapSexp2Binding(single: Sexp): Binding => {
-    isCompoundSExp(single) ?
-        bind(parseL31CExp(rest(single)), (cexp: CExp) => makeBinding(first(single), cexp) ) :
-        0
+export const mapSexp2Binding = (single: Sexp): Result<Binding> => {
+    if (isCompoundSexp(single)) {
+        const x: Sexp = first(single);
+        if (isString(x))
+            return (bind(parseL31CExp(rest(single)), (cexp: CExp) => makeOk(makeBinding(x, cexp) ) ) )
+    }           
+    return makeFailure("could not make the Binding!!");
     }
-
-
-/*
-// added.
-export const parseClassExp(fields: Sexp[], methods: Sexp[]): Result<ClassExp> => 
-    !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
-    safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
-    (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(methods) ) ) :
-    makeFailure(`Invalid vaes for ClassExp`);
-
-export const mapMethods2Bindings(methods: Sexp[]): Binding[] =>
-    allT(isToken, map((x: any) => first(x), methods)) ?
-    methods.reduce( (acc: Binding[], curr: Sexp) => 
-    {
-        //isCompoundSExp(curr) && ? 
-        //isToken(first(curr))
-        isCompoundSExp(curr) && isToken(first(curr) && isArray(curr) ?
-        acc.concat([ makeBinding(first(curr), (parseL31CExp(rest(curr))).value  ) ]) :
-        []
-    }, []
-        )
-*/
-
-/*
-export const parseClassExpTemp(fields: Sexp[], methods: Sexp[]): Result<ClassExp> => 
-    isEmpty(fields) || isEmpty(methods) ? makeFailure("Fill this in") :
-    all(isCompoundSExp)(fields) ? makeFailure("Fields should not be compound") :
-    // ... make failures for every bad case
-    // ... check failurs for methods (e.g. first values are tokens)
-    // deal with good case:
-    // all(isToken)(fields) ? (makeOk(map(makeVarDecl, fields) // convert to strings
-    safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
-    (makeOk(map(makeVarDecl, fields)), makeOk(mapMethods2Bindings(makeBinding, methods) ) )
-    :
-    makeFailure(`Invalid vaes for ClassExp`);
-*/
-
-/*
-safe2((rator: CExp, rands: CExp[]) => makeOk(makeAppExp(rator, rands)))
-        (parseL31CExp(op), mapResult(parseL31CExp, params));
-*/
-
-// makeVarDecl(first(exps)).var, rest(exps)
-// export const rest = <T>(x: T[]): T[] => x.slice(1);
-/*
-export const makeBinding = (v: string, val: CExp): Binding =>
-    ({tag: "Binding", var: makeVarDecl(v), val: val});
-*/
-// export const makeClassExp = (fields: VarDecl[], methods: Binding[])
-/*
-    // test: matMethods2Bindings(makeBinding, ["first", ["lambda", [], "a"]]) -> Binding(first, val: )
-export const mapMethods2Bindings(func:(v: string, val: CExp) => Binding, methods: Sexp[]): Binding[] =>
-    makeBinding(first(methods), map(parseL31CExp, methods[1])
-
-export const mapMethods2Binding(...)
-
-export const fields2strings(fileds: Sexp[]): string[] =>
-    fields.reduce((curr: Sexp, acc: string[]) => curr, [])
-
-    // temp
-*/
-
 
 const isGoodBindings = (bindings: Sexp): bindings is [string, Sexp][] =>
     isArray(bindings) &&
