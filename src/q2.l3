@@ -1,4 +1,6 @@
 
+razalmog    
+
 (define empty?
   (lambda (lst)
     (eq? lst '())
