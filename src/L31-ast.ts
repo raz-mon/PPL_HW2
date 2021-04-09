@@ -173,7 +173,7 @@ export const parseL31SpecialForm = (op: Sexp, params: Sexp[]): Result<CExp> =>
     op === "lambda" ? parseProcExp(first(params), rest(params)) :
     op === "let" ? parseLetExp(first(params), rest(params)) :
     op === "quote" ? parseLitExp(first(params)) :
-    op === "class" ? parseClassExp(first(params), rest(params)): 
+    op === "class" ? parseClassExp(params): 
     makeFailure("Never");
 
 // DefineExp -> (define <varDecl> <CExp>)
@@ -230,12 +230,19 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
                                                  (cexps: CExp[]) => makeOk(makeProcExp(map(makeVarDecl, vars), cexps))) :
     makeFailure(`Invalid vars for ProcExp`);
 
+export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
+    const x = first(params);
+    if (isArray(x)) {
+        return parseGoodClassExp(x, rest(params))
+    }
+    return makeFailure(`Invalid Exp for ClassExp`);
+}
 
-export const parseClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
+export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
     !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
     safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
     (makeOk(map(makeVarDecl, fields)), mapMethods2Bindings(methods) ) :
-    makeFailure(`Invalid vaes for ClassExp`);   
+    makeFailure(`Invalid Exp for ClassExp`);   
 
 export const mapMethods2Bindings = (methods: Sexp[]): Result<Binding[]> =>
     mapResult(mapSexp2Binding , methods);
@@ -315,6 +322,9 @@ const unparseProcExp = (pe: ProcExp): string =>
 
 const unparseLetExp = (le: LetExp) : string => 
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
+
+const unparseClassExp = (ce: ClassExp): string =>
+    `(class (${map((b: ))}))`
 
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
