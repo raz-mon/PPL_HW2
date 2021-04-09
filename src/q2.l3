@@ -1,0 +1,114 @@
+
+(define empty?
+  (lambda (lst)
+    (eq? lst '())
+  )
+)
+
+(define append 
+  (lambda (lst1 lst2)
+    (if (empty? lst1)
+      lst2
+    (cons (car lst1) (append (cdr lst1) lst2))
+    )
+  )
+)
+
+(define reverse 
+  (lambda (lst)
+    (if (empty? lst)
+      '()
+    (append (reverse (cdr lst)) (list (car lst)))
+    )
+  ) 
+)
+
+(define dup_rel
+  (lambda (element times)
+    (if (= times 0)
+    '()
+    (cons element (dup_rel element (- times 1) )) 
+     )
+    )
+  )
+
+(define duplicate-items
+   (lambda (lst dup-count)
+    (if (eq? lst (list))
+     '()
+    (append (dup_rel (car lst) (car dup-count)) (duplicate-items (cdr lst) (append (cdr dup-count) (list (car dup-count)))))
+    )
+  )
+)
+
+(define payment
+  (lambda (n coins-lst)
+   (currect-payment (create-lst-of-lst coins-lst) '() n)
+  )
+)
+
+(define create-lst-of-lst
+  (lambda (lst)
+    (if (empty? lst)
+      '()
+    (cons (duplicate-num (car lst)
+      (reduce + 0 (filter (lambda (x) (= x (car lst))) lst)))
+      (create-lst-of-lst (filter (lambda (x) (or (> x (car lst))(< x (car lst)))) lst))
+    )
+    )
+  )
+)
+
+(define duplicate-num
+  (lambda (num sum)
+    (if (= sum 0)
+      '()
+      (cons sum (duplicate-num num (- sum num)))
+    )
+  )
+)
+
+(define compute
+  (lambda (n coins-lst)
+    (if (= n (reduce + 0 coins-lst))
+      1
+      0
+    )
+  )
+)
+
+(define currect-payment
+  (lambda (lst-of-lst constructed-lst n)
+    (if (empty? lst-of-lst)
+      (compute n constructed-lst)
+    (if (empty? (car lst-of-lst))
+      (currect-payment (cdr lst-of-lst) constructed-lst n)
+    (+ (currect-payment (cdr lst-of-lst) (cons (car (car lst-of-lst)) constructed-lst) n)
+      (currect-payment (cons (cdr (car lst-of-lst)) (cdr lst-of-lst)) constructed-lst n))
+    )
+    )
+  )
+)
+
+(define reduce
+  (lambda (reducer init l)
+    (if (empty? l)
+      init
+    (reducer (car l) 
+      (reduce reducer init (cdr l))))))
+
+(define compose-n
+  (lambda (f n)
+    (if (= n 0)
+      (lambda (x)
+        x
+      )
+      (lambda (x)
+        (f ((compose-n f (- n 1)) x))
+      )
+    )
+  )
+)
+
+
+
