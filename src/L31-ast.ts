@@ -232,10 +232,8 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
 
 export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
     const x = first(params);
-    if (isArray(x)) {
-        return parseGoodClassExp(x, rest(params))
-    }
-    return makeFailure(`Invalid Exp for ClassExp`);
+    return  isArray(x) ?    parseGoodClassExp(x, rest(params)) :
+                            makeFailure(`Invalid Exp for fields`);
 }
 
 export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
