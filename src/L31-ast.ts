@@ -232,10 +232,8 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
 
 export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
     const x = first(params);
-    if (isArray(x)) {
-        return parseGoodClassExp(x, rest(params))
-    }
-    return makeFailure(`Invalid Exp for ClassExp`);
+    return  isArray(x) ?    parseGoodClassExp(x, rest(params)) :
+                            makeFailure(`Invalid Exp for fields`);
 }
 
 export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
@@ -323,8 +321,9 @@ const unparseProcExp = (pe: ProcExp): string =>
 const unparseLetExp = (le: LetExp) : string => 
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
-const unparseClassExp = (ce: ClassExp): string =>
-    `(class (${map((b: ?????))}))`
+const unparseClassExp = (ce: ClassExp): string =>   // This is actually quite easy! See other examples for reference.
+//    `(class (${map((b: ?????))}))`
+        ""      // Just so we can run the tests.
 
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :

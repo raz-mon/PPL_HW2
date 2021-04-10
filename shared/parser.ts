@@ -20,3 +20,4 @@ export const parse = (x: string): Result<Sexp> => {
     const parsed = p(x);
     return isError(parsed) ? makeFailure(parsed.message) : makeOk(parsed);
 }
+
