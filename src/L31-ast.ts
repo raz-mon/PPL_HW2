@@ -214,7 +214,7 @@ const isPrimitiveOp = (x: string): boolean =>
      "number?", "boolean?", "symbol?", "string?"].includes(x);
 
 const isSpecialForm = (x: string): boolean =>
-    ["if", "lambda", "let", "quote", "Class"].includes(x);
+    ["if", "lambda", "let", "quote", "class"].includes(x);
 
 const parseAppExp = (op: Sexp, params: Sexp[]): Result<AppExp> =>
     safe2((rator: CExp, rands: CExp[]) => makeOk(makeAppExp(rator, rands)))
@@ -232,15 +232,19 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
 
 export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
     const x = first(params);
-    return  isArray(x) ?    parseGoodClassExp(x, rest(params)) :
+    return  isArray(x) && params.length === 2 ?    parseGoodClassExp(x, rest(params)) :
                             makeFailure(`Invalid Exp for fields`);
 }
 
 export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
-    !isEmpty(fields) && !isEmpty(methods) && allT(isString, fields) && allT(isToken, map((x: any) => first(x), methods)) ? 
+    isEmpty(fields) ? makeFailure("fields is empty") :
+    //allT(isToken, fields) ? makeFailure("All fields must be tokens") :      // Is this not relevant due to the 'isIdentifier' check?
+    isEmpty(methods) ? makeFailure("methods is empty") :
+    !allT(isIdentifier, map((x: any) => first(x), methods)) ? makeFailure("First argument of the method must be a Token") :
+    !allT(isString, fields) ? makeFailure("All fields must be strings") :
+    !allT(isIdentifier, fields) ? makeFailure("First arg of define must be an identifier") :
     safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
-    (makeOk(map(makeVarDecl, fields)), mapMethods2Bindings(methods) ) :
-    makeFailure(`Invalid Exp for ClassExp`);   
+    (makeOk(map(makeVarDecl, fields)), mapMethods2Bindings(methods) );
 
 export const mapMethods2Bindings = (methods: Sexp[]): Result<Binding[]> =>
     mapResult(mapSexp2Binding , methods);
@@ -323,7 +327,7 @@ const unparseLetExp = (le: LetExp) : string =>
 
 const unparseClassExp = (ce: ClassExp): string =>   
     `(class (${map((vd: VarDecl) => vd.var, ce.fields).join(" ")}) 
-    (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, ce.methods).join("\n")})     
+    (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, ce.methods).join(" ")})     
     )`          // whitespace or new-line? 
     
 // export interface ClassExp {tag: "ClassExp"; fields:VarDecl[], methods:Binding[]; }
