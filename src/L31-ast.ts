@@ -324,7 +324,8 @@ const unparseLetExp = (le: LetExp) : string =>
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
 const unparseClassExp = (ce: ClassExp): string =>   // This is actually quite easy! See other examples for reference.
-    `(class (${map((b: ?????))}))`
+//    `(class (${map((b: ?????))}))`
+        ""      // Just so we can run the tests.
 
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
