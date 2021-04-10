@@ -12,11 +12,13 @@ Signature: for2proc(classExp)
 Type: ClassExp => ProcExp
 */
 
-export const class2proc = (exp: ClassExp): ProcExp => 
-    isEmpty(exp) ? makeProcExp([],[]):
-    makeProcExp(exp.fields, [(msg: VarDecl) => 
-    makeProcExp(msg,rewriteNewIfExp(msg,map((b: Binding) => b.var, exp.methods)
-    ,map((b: Binding) => b.val, exp.methods)))(msg)]);
+export const class2proc = (exp: ClassExp): ProcExp => {
+    const vars = map((b) => b.var, exp.methods);    // VarDecl[]
+    const vals = map((b) => b.val, exp.methods) as CExp[];    // CExp[]
+    const x = (msg: VarDecl[]) => (makeProcExp(msg, [rewriteNewIfExp(first(msg), vars, vals)]));
+    const y = makeProcExp(exp.fields, x(msg));
+    return y;
+}
 
 export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp => {
     //  AppExp[eq?, [msg, mtd.name]]
