@@ -9,7 +9,7 @@
   (lambda (lst1 lst2)
     (if (empty? lst1)
       lst2
-    (cons (car lst1) (append (cdr lst1) lst2))
+      (cons (car lst1) (append (cdr lst1) lst2))
     )
   )
 )
@@ -18,7 +18,7 @@
   (lambda (lst)
     (if (empty? lst)
       '()
-    (append (reverse (cdr lst)) (list (car lst)))
+      (append (reverse (cdr lst)) (list (car lst)))
     )
   ) 
 )
@@ -77,15 +77,26 @@
   )
 )
 
+(define filter
+  (lambda (pred l)
+    (if (empty? l)
+      '()
+      (if (pred (car l))
+        (cons (car l) (filter pred (cdr l)))
+        (filter pred (cdr l)))
+    )
+  )
+)
+
 (define currect-payment
   (lambda (lst-of-lst constructed-lst n)
     (if (empty? lst-of-lst)
       (compute n constructed-lst)
-    (if (empty? (car lst-of-lst))
-      (currect-payment (cdr lst-of-lst) constructed-lst n)
-    (+ (currect-payment (cdr lst-of-lst) (cons (car (car lst-of-lst)) constructed-lst) n)
-      (currect-payment (cons (cdr (car lst-of-lst)) (cdr lst-of-lst)) constructed-lst n))
-    )
+      (if (empty? (car lst-of-lst))
+        (currect-payment (cdr lst-of-lst) constructed-lst n)
+        (+ (currect-payment (cdr lst-of-lst) (cons (car (car lst-of-lst)) constructed-lst) n)
+        (currect-payment (cons (cdr (car lst-of-lst)) (cdr lst-of-lst)) constructed-lst n))
+      )
     )
   )
 )
@@ -95,7 +106,10 @@
     (if (empty? l)
       init
     (reducer (car l) 
-      (reduce reducer init (cdr l))))))
+      (reduce reducer init (cdr l)))
+    )
+  )
+)
 
 (define compose-n
   (lambda (f n)
