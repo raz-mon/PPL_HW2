@@ -26,24 +26,24 @@
 (define dup_rel
   (lambda (element times)
     (if (= times 0)
-    '()
-    (cons element (dup_rel element (- times 1) )) 
-     )
+      '()
+      (cons element (dup_rel element (- times 1) )) 
     )
   )
+)
 
 (define duplicate-items
    (lambda (lst dup-count)
     (if (eq? lst (list))
      '()
-    (append (dup_rel (car lst) (car dup-count)) (duplicate-items (cdr lst) (append (cdr dup-count) (list (car dup-count)))))
+      (append (dup_rel (car lst) (car dup-count)) (duplicate-items (cdr lst) (append (cdr dup-count) (list (car dup-count)))))
     )
   )
 )
 
 (define payment
   (lambda (n coins-lst)
-   (currect-payment (create-lst-of-lst coins-lst) '() n)
+    (currect-payment (create-lst-of-lst coins-lst) '() n)
   )
 )
 
@@ -51,10 +51,10 @@
   (lambda (lst)
     (if (empty? lst)
       '()
-    (cons (duplicate-num (car lst)
+      (cons (duplicate-num (car lst)
       (reduce + 0 (filter (lambda (x) (= x (car lst))) lst)))
       (create-lst-of-lst (filter (lambda (x) (or (> x (car lst))(< x (car lst)))) lst))
-    )
+      )
     )
   )
 )
