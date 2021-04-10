@@ -28,9 +28,9 @@ console.log(a.reduce( (acc: number[][], curr: number) => acc.concat([[curr]]) , 
 */
 
  //console.log(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`));
-console.log(JSON.stringify(parseL31(`(L31 (class (a b) ((first (lambda () a)) )))`), null, 2));
+console.log(JSON.stringify(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`), null, 2));
 
-const x = parseL31(`(L31 (class (a b) ((first (lambda () a)) )))`);
+const x = parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`);
 isOk(x) ? console.log(JSON.stringify(unparseL31(x.value), null, 2)) : ""
 
 //console.log(JSON.stringify(parseL31(`(L31 (lambda (x) (* x x)))`), null, 2));
