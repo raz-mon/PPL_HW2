@@ -232,8 +232,10 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
 
 export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
     const x = first(params);
-    return  isArray(x) && params.length === 2 ?    parseGoodClassExp(x, rest(params)) :
-                            makeFailure(`Invalid Exp for fields`);
+    const y = second(params);
+    return (params.length !== 2) ? makeFailure(`number of components of params is not correct! (Class-regarded)`) :
+    isArray(x) && isArray(y) ? parseGoodClassExp(x, y) :
+        makeFailure(`Invalid Exp for fields`);
 }
 
 export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
@@ -252,11 +254,12 @@ export const mapMethods2Bindings = (methods: Sexp[]): Result<Binding[]> =>
 export const mapSexp2Binding = (single: Sexp): Result<Binding> => {
     if (isCompoundSexp(single)) {
         const x: Sexp = first(single);
-        return isString(x) ? (bind(parseL31CExp(rest(single)), (cexp: CExp) => makeOk(makeBinding(x, cexp) ) ) ) :
-        makeFailure("could not make the Binding!!");
+        return isString(x) ? (bind(parseL31CExp(second(single)), (cexp: CExp) => makeOk(makeBinding(x, cexp) ) ) ) :
+        makeFailure("could not make the Binding1!!");
     }
-    return makeFailure("could not make the Binding!!");
+    return makeFailure("could not make the Binding2!!");
 }
+
 const isGoodBindings = (bindings: Sexp): bindings is [string, Sexp][] =>
     isArray(bindings) &&
     allT(isArray, bindings) &&
@@ -325,10 +328,8 @@ const unparseLetExp = (le: LetExp) : string =>
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
 const unparseClassExp = (ce: ClassExp): string =>   
-    `(class (${map((vd: VarDecl) => vd.var, ce.fields).join(" ")}) 
-    (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, ce.methods).join(" ")})     
-    )`          // whitespace or new-line? 
-    
+    `(class (${map((vd: VarDecl) => vd.var, ce.fields).join(" ")}) (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, ce.methods).join(" ")}))`          // whitespace or new-line? 
+
 // export interface ClassExp {tag: "ClassExp"; fields:VarDecl[], methods:Binding[]; }
     
 export const unparseL31 = (exp: Program | Exp): string =>
