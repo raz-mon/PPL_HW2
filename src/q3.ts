@@ -15,8 +15,8 @@ Type: ClassExp => ProcExp
 export const class2proc = (exp: ClassExp): ProcExp => {
     const vars = map((b) => b.var, exp.methods);    // VarDecl[]
     const vals = map((b) => b.val, exp.methods) as CExp[];    // CExp[]
-    const x = (msg: VarDecl[]) => (makeProcExp(msg, [rewriteNewIfExp(first(msg), vars, vals)]));
-    const y = makeProcExp(exp.fields, x(msg));
+    const x = (msg: VarDecl) => (makeProcExp([msg], [rewriteNewIfExp(msg, vars, vals)]));
+    const y = makeProcExp(exp.fields, [(m: VarDecl) => x(m)]);
     return y;
 }
 
