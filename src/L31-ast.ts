@@ -323,7 +323,7 @@ const unparseProcExp = (pe: ProcExp): string =>
 const unparseLetExp = (le: LetExp) : string => 
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
-const unparseClassExp = (ce: ClassExp): string =>
+const unparseClassExp = (ce: ClassExp): string =>   // This is actually quite easy! See other examples for reference.
     `(class (${map((b: ?????))}))`
 
 export const unparseL31 = (exp: Program | Exp): string =>
