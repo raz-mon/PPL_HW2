@@ -252,12 +252,11 @@ export const mapMethods2Bindings = (methods: Sexp[]): Result<Binding[]> =>
 export const mapSexp2Binding = (single: Sexp): Result<Binding> => {
     if (isCompoundSexp(single)) {
         const x: Sexp = first(single);
-        if (isString(x))
-            return (bind(parseL31CExp(rest(single)), (cexp: CExp) => makeOk(makeBinding(x, cexp) ) ) )
-    }           
-    return makeFailure("could not make the Binding!!");
+        return isString(x) ? (bind(parseL31CExp(rest(single)), (cexp: CExp) => makeOk(makeBinding(x, cexp) ) ) ) :
+        makeFailure("could not make the Binding!!");
     }
-
+    return makeFailure("could not make the Binding!!");
+}
 const isGoodBindings = (bindings: Sexp): bindings is [string, Sexp][] =>
     isArray(bindings) &&
     allT(isArray, bindings) &&
