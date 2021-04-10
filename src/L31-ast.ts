@@ -321,10 +321,13 @@ const unparseProcExp = (pe: ProcExp): string =>
 const unparseLetExp = (le: LetExp) : string => 
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
-const unparseClassExp = (ce: ClassExp): string =>   // This is actually quite easy! See other examples for reference.
-//    `(class (${map((b: ?????))}))`
-        ""      // Just so we can run the tests.
-
+const unparseClassExp = (ce: ClassExp): string =>   
+    `(class (${map((vd: VarDecl) => vd.var, ce.fields).join(" ")}) 
+    (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, ce.methods).join("\n")})     
+    )`          // whitespace or new-line? 
+    
+// export interface ClassExp {tag: "ClassExp"; fields:VarDecl[], methods:Binding[]; }
+    
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
     isNumExp(exp) ? valueToString(exp.val) :
@@ -338,7 +341,6 @@ export const unparseL31 = (exp: Program | Exp): string =>
     isLetExp(exp) ? unparseLetExp(exp) :
     isDefineExp(exp) ? `(define ${exp.var.var} ${unparseL31(exp.val)})` :
     isProgram(exp) ? `(L31 ${unparseLExps(exp.exps)})` :
-    
-    isClassExp(exp) ? unparseClassExp(exp) :     // I tried.
+    isClassExp(exp) ? unparseClassExp(exp) :
     exp;                  // This is the original ending (the function never get's here originally).
 

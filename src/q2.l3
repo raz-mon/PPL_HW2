@@ -1,9 +1,3 @@
-
-
-asd
-
-
-
 (define empty?
   (lambda (lst)
     (eq? lst '())
