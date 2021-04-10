@@ -16,10 +16,18 @@ export const class2proc = (exp: ClassExp): ProcExp => {
     const vars = map((b) => b.var, exp.methods);    // VarDecl[]
     const vals = map((b) => b.val, exp.methods) as CExp[];    // CExp[]
     const x = (msg: VarDecl) => (makeProcExp([msg], [rewriteNewIfExp(msg, vars, vals)]));
-    const y = makeProcExp(exp.fields, [(m: VarDecl) => x(m)]);
+    const y = makeProcExp(exp.fields, [(m) => x(m)]);
     return y;
 }
 
+export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp =>
+    vars.length === 1 && vals.length === 1 ?
+    makeIfExp(makeAppExp(makePrimOp("eq?"), [makeStrExp(msg.var), makeStrExp(first(vars).var)])
+    , first(vals), makeBoolExp(false)):
+    makeIfExp(makeAppExp(makePrimOp("eq?"), [makeStrExp(msg.var), makeStrExp(first(vars).var)])
+    , first(vals), rewriteNewIfExp(msg, rest(vars), rest(vals)));
+
+/*
 export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp => {
     //  AppExp[eq?, [msg, mtd.name]]
     let x = makeAppExp(makePrimOp("eq?"), [makeStrExp(msg.var), makeStrExp(first(vars).var)]);
@@ -29,7 +37,7 @@ export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CE
         return makeIfExp(x, first(vals), rewriteNewIfExp(msg, rest(vars), rest(vals)));
     }
 }
-
+*/
 
 /*
 Purpose: Transform L31 AST to L3 AST
