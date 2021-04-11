@@ -7,7 +7,9 @@ import { parse as p, isSexpString, isToken } from "../shared/parser";
 import { Sexp, Token } from "s-expression";
 
 //import "src/L31-ast.ts";
-import {parseL31Exp, parseL31, unparseL31} from "../src/L31-ast"
+import {parseL31Exp, parseL31, unparseL31, parseL31CExp, Program, isClassExp} from "../src/L31-ast"
+import { class2proc } from "./q3";
+import { isProcExp, parseL3CExp } from "../imp/L3-ast";
 
 
 
@@ -28,7 +30,27 @@ console.log(a.reduce( (acc: number[][], curr: number) => acc.concat([[curr]]) , 
 */
 
  //console.log(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`));
-console.log(JSON.stringify(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`), null, 2));
+//console.log(JSON.stringify(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`), null, 2));
+//console.log(JSON.stringify(parseL31Exp(`(L31 (class (a b) ((first (lambda () a)) )))`), null, 2));
+const prgR: Result<Program> = parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`);
+if(isOk(prgR)){
+    let x = prgR.value.exps[0];
+    console.log(unparseL31(x));
+    if(isClassExp(x)){
+        console.log(unparseL31(class2proc(x)));
+        //console.log(JSON.stringify(class2proc(x),null,2));
+        const prgR2: Result<Program> = parseL31(`(L31 (lambda (a b) (lambda (msg) (if (eq? msg 'first) ((lambda () a) ) (if (eq? msg 'second) ((lambda () b) ) (if (eq? msg 'sum) ((lambda () (+ a b)) ) #f))))))`);
+        if(isOk(prgR2)){
+            let y = prgR2.value.exps[0];
+            console.log(unparseL31(y));
+            //console.log(JSON.stringify(y,null,2));
+        }
+    }
+
+    //console.log(JSON.stringify(class2proc(x),null,2))  
+    //console.log(JSON.stringify(x, null, 2));
+}
+//console.log(JSON.stringify(parseL31CExp(`(class (a b) ((first (lambda () a)) ))`), null, 2));
 
 //const x = parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`);
 //isOk(x) ? console.log(JSON.stringify(unparseL31(x.value), null, 2)) : ""

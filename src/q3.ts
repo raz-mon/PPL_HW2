@@ -1,10 +1,11 @@
-import { ClassExp, ProcExp, Exp, Program, IfExp, makeBoolExp } from "./L31-ast";
+import { ClassExp, ProcExp, Exp, Program, IfExp, makeBoolExp, makeVarRef, makeLitExp } from "./L31-ast";
 import { Result, makeFailure } from "../shared/result";
 import { is, isEmpty, map } from "ramda";
-import { Binding, CExp, makeAppExp, makeIfExp, makePrimOp, makeProcExp, makeStrExp, VarDecl } from "../imp/L3-ast";
+import { AppExp, Binding, CExp, makeAppExp, makeIfExp, makePrimOp, makeProcExp, makeStrExp, makeVarDecl, VarDecl } from "../imp/L3-ast";
 import { METHODS } from "node:http";
 import { first, rest } from "../shared/list";
 import exp from "node:constants";
+import { makeSymbolSExp } from "../imp/L3-value";
 
 /*
 Purpose: Transform ClassExp to ProcExp
@@ -15,29 +16,30 @@ Type: ClassExp => ProcExp
 export const class2proc = (exp: ClassExp): ProcExp => {
     const vars = map((b) => b.var, exp.methods);    // VarDecl[]
     const vals = map((b) => b.val, exp.methods) as CExp[];    // CExp[]
-    const x = (msg: VarDecl) => (makeProcExp([msg], [rewriteNewIfExp(msg, vars, vals)]));
-    const y = makeProcExp(exp.fields, [(m) => x(m)]);
-    return y;
+    const msg = makeVarDecl("msg");
+    return makeProcExp(exp.fields, 
+        [makeProcExp([msg], [rewriteNewIfExp(msg, vars, vals)])]);
 }
 
+/*
 export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp =>
     vars.length === 1 && vals.length === 1 ?
-    makeIfExp(makeAppExp(makePrimOp("eq?"), [makeStrExp(msg.var), makeStrExp(first(vars).var)])
+    makeIfExp(makeAppExp(makePrimOp("eq?"), [makeVarRef(msg.var), makeLitExp(makeSymbolSExp( first(vars).var))])
     , first(vals), makeBoolExp(false)):
-    makeIfExp(makeAppExp(makePrimOp("eq?"), [makeStrExp(msg.var), makeStrExp(first(vars).var)])
+    makeIfExp(makeAppExp(makePrimOp("eq?"), [makeVarRef(msg.var), makeLitExp(makeSymbolSExp( first(vars).var))])
     , first(vals), rewriteNewIfExp(msg, rest(vars), rest(vals)));
+*/
 
-/*
 export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp => {
     //  AppExp[eq?, [msg, mtd.name]]
-    let x = makeAppExp(makePrimOp("eq?"), [makeStrExp(msg.var), makeStrExp(first(vars).var)]);
+    let x = makeAppExp(makePrimOp("eq?"), [makeVarRef(msg.var), makeLitExp(makeSymbolSExp( first(vars).var))]);
     if(vars.length === 1 && vals.length === 1){
         return makeIfExp(x, first(vals), makeBoolExp(false));
     }else{
         return makeIfExp(x, first(vals), rewriteNewIfExp(msg, rest(vars), rest(vals)));
     }
 }
-*/
+
 
 /*
 Purpose: Transform L31 AST to L3 AST
