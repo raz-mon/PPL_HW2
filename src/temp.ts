@@ -7,9 +7,35 @@ import { parse as p, isSexpString, isToken } from "../shared/parser";
 import { Sexp, Token } from "s-expression";
 
 //import "src/L31-ast.ts";
-import {parseL31Exp, parseL31, unparseL31, parseL31CExp, Program, isClassExp} from "../src/L31-ast"
-import { class2proc } from "./q3";
+import {parseL31Exp, parseL31, unparseL31, parseL31CExp, Program, isClassExp, ClassExp, Exp, CExp} from "../src/L31-ast"
+import { class2proc , L31ToL3 } from "./q3";
 import { isProcExp, parseL3CExp } from "../imp/L3-ast";
+
+
+
+// (bind(p(`(class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b)))))`), parseL31Exp), L31ToL3)
+//console.log(JSON.stringify(bind((bind(p(`(class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b)))))`)
+//                                    , parseL31Exp)), L31ToL3), null, 2));
+          /*                          
+console.log(JSON.stringify(bind(p(`(class (a b) ((first (lambda () a)) ))`), 
+                    parseL31Exp ), null, 2) )
+console.log("\n\n");
+console.log(JSON.stringify(bind(p(`(class (a b) ((first (lambda () a)) ))`), 
+        (s: Sexp) => bind(parseL31Exp(s),  L31ToL3 ) ), null, 2) )
+*/
+console.log(JSON.stringify(bind(p(`(class (a b) ((first (class (a b) ((first (lambda () a)) ))) ))`), 
+        (s: Sexp) => bind(parseL31Exp(s),  L31ToL3 ) ), null, 2) )
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32,6 +58,13 @@ console.log(a.reduce( (acc: number[][], curr: number) => acc.concat([[curr]]) , 
  //console.log(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`));
 //console.log(JSON.stringify(parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`), null, 2));
 //console.log(JSON.stringify(parseL31Exp(`(L31 (class (a b) ((first (lambda () a)) )))`), null, 2));
+
+
+
+
+
+
+/*
 const prgR: Result<Program> = parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`);
 if(isOk(prgR)){
     let x = prgR.value.exps[0];
@@ -50,6 +83,32 @@ if(isOk(prgR)){
     //console.log(JSON.stringify(class2proc(x),null,2))  
     //console.log(JSON.stringify(x, null, 2));
 }
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //console.log(JSON.stringify(parseL31CExp(`(class (a b) ((first (lambda () a)) ))`), null, 2));
 
 //const x = parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`);

@@ -1,7 +1,10 @@
-import { ClassExp, ProcExp, Exp, Program, IfExp, makeBoolExp, makeVarRef, makeLitExp } from "./L31-ast";
-import { Result, makeFailure } from "../shared/result";
+import { ClassExp, ProcExp, Program, IfExp, makeBoolExp, makeVarRef, makeLitExp, isClassExp, makeClassExp,
+    isAtomicExp, isLetExp, isProcExp, isIfExp, isLitExp, isDefineExp, isExp, isCompoundExp, isAppExp, isBinding,
+    isProgram, makeLetExp, makeDefineExp, makeProgram, AppExp, Binding, Exp, CExp, isCExp, makeAppExp, makeIfExp, 
+    makePrimOp, makeProcExp, makeStrExp, makeVarDecl, makeBinding, VarDecl } from "./L31-ast";
+import { Result, makeFailure, makeOk } from "../shared/result";
 import { is, isEmpty, map } from "ramda";
-import { AppExp, Binding, CExp, isCExp, makeAppExp, makeIfExp, makePrimOp, makeProcExp, makeStrExp, makeVarDecl, VarDecl } from "../imp/L3-ast";
+//import { AppExp, Binding, Exp, CExp, isCExp, makeAppExp, makeIfExp, makePrimOp, makeProcExp, makeStrExp, makeVarDecl, VarDecl } from "../imp/L3-ast";
 import { METHODS } from "node:http";
 import { first, rest } from "../shared/list";
 import exp from "node:constants";
@@ -35,4 +38,29 @@ Signature: l31ToL3(l31AST)
 Type: [Exp | Program] => Result<Exp | Program>
 */
 export const L31ToL3 = (exp: Exp | Program): Result<Exp | Program> =>
-    makeFailure("TODO");
+    makeOk(rewriteAllClass(exp));
+
+
+export const rewriteAllClass = (exp: Program | Exp): Program | Exp =>
+isExp(exp) ? rewriteAllClassExp(exp) :
+isProgram(exp) ? makeProgram(map(rewriteAllClassExp, exp.exps)) :
+exp; // never
+
+const rewriteAllClassExp = (exp: Exp): Exp =>
+isCExp(exp) ? rewriteAllClassCExp(exp) :
+isDefineExp(exp) ? makeDefineExp(exp.var, rewriteAllClassCExp(exp.val)) :
+exp; // never
+
+const rewriteAllClassCExp = (exp: CExp): CExp =>
+isAtomicExp(exp) ? exp :
+isLitExp(exp) ? exp :
+isIfExp(exp) ? makeIfExp(rewriteAllClassCExp(exp.test),
+                         rewriteAllClassCExp(exp.then),
+                         rewriteAllClassCExp(exp.alt)) :
+isAppExp(exp) ? makeAppExp(rewriteAllClassCExp(exp.rator),
+                           map(rewriteAllClassCExp, exp.rands)) :
+isProcExp(exp) ? makeProcExp(exp.args, map(rewriteAllClassCExp, exp.body)) :
+isClassExp(exp) ? rewriteAllClassCExp(class2proc(exp)) :
+isLetExp(exp) ? makeLetExp( exp.bindings.map( (b) => makeBinding(b.var.var, rewriteAllClassCExp(b.val) ) ), map(rewriteAllClassCExp, exp.body) ) :
+exp; // never
+
