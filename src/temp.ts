@@ -6,10 +6,38 @@ import { Result, makeOk, makeFailure, bind, mapResult, safe2, isOk } from "../sh
 import { parse as p, isSexpString, isToken } from "../shared/parser";
 import { Sexp, Token } from "s-expression";
 
+import {isBoolExp, isProcExp, isLetExp, isAppExp, isAtomicExp, isBinding, isCompoundExp, isDefineExp,
+    isExp, isIfExp, isLitExp, isCExp, isNumExp, isVarDecl, isVarRef, isPrimOp, isProgram,
+    Exp, Program, AppExp, PrimOp, VarDecl, ProcExp, parseL3} from "../imp/L3-ast";
+
 //import "src/L31-ast.ts";
-import {parseL31Exp, parseL31, unparseL31, parseL31CExp, Program, isClassExp, ClassExp, Exp, CExp} from "../src/L31-ast"
+import {parseL31Exp, parseL31, unparseL31, parseL31CExp, isClassExp, ClassExp, CExp} from "../src/L31-ast"
 import { class2proc , L31ToL3 } from "./q3";
-import { isProcExp, parseL3CExp } from "../imp/L3-ast";
+import { parseL3CExp , parseL3Exp} from "../imp/L3-ast";
+import { l2ToPython } from "../src/q4";
+
+// (+ 3 5) ⇒ (3 + 5)
+
+//console.log(l2ToPython(parseL3(`(L31 (+ 3 5))`)));
+const l2ToPythonResult = (x: string): Result<string> =>
+    bind(bind(p(x),parseL3Exp),l2ToPython);
+
+console.log(bind(parseL3(`(L3 (+ 3 5 7))`), l2ToPython ))
+
+console.log(l2ToPythonResult(`(= 3 (+ 1 2))`))
+//console.log(bind(parseL3(`(L3 (- 3 5))`), l2ToPython ))
+
+//const x = parseL31(`(L31 (+ 3 5))`)
+//isOk(x)? console.log(l2ToPython(x.value))
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25,10 +53,10 @@ console.log(JSON.stringify(bind(p(`(class (a b) ((first (lambda () a)) ))`),
 */
 //console.log(JSON.stringify(bind(p(`(class (a b) ((first (class (a b) ((first (lambda () a)) ))) ))`), 
 //        (s: Sexp) => bind(parseL31Exp(s),  L31ToL3 ) ), null, 2) )
-
+/*
 console.log(parseL31(`(L31 (+ 3 5 7))`));
 console.log(JSON.stringify(parseL31(`(L31 (+ 3 5 7))`), null, 2));
-
+*/
 /*
 console.log(p("1")); // { tag: 'Ok', value: '1' }
 console.log(p("(1 2)")); // { tag: 'Ok', value: [ '1', '2' ] }
