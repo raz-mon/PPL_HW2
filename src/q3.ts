@@ -1,7 +1,7 @@
 import { ClassExp, ProcExp, Exp, Program, IfExp, makeBoolExp, makeVarRef, makeLitExp } from "./L31-ast";
 import { Result, makeFailure } from "../shared/result";
 import { is, isEmpty, map } from "ramda";
-import { AppExp, Binding, CExp, makeAppExp, makeIfExp, makePrimOp, makeProcExp, makeStrExp, makeVarDecl, VarDecl } from "../imp/L3-ast";
+import { AppExp, Binding, CExp, isCExp, makeAppExp, makeIfExp, makePrimOp, makeProcExp, makeStrExp, makeVarDecl, VarDecl } from "../imp/L3-ast";
 import { METHODS } from "node:http";
 import { first, rest } from "../shared/list";
 import exp from "node:constants";
@@ -21,25 +21,13 @@ export const class2proc = (exp: ClassExp): ProcExp => {
         [makeProcExp([msg], [rewriteNewIfExp(msg, vars, vals)])]);
 }
 
-/*
+
 export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp =>
     vars.length === 1 && vals.length === 1 ?
     makeIfExp(makeAppExp(makePrimOp("eq?"), [makeVarRef(msg.var), makeLitExp(makeSymbolSExp( first(vars).var))])
-    , first(vals), makeBoolExp(false)):
+    , makeAppExp(first(vals),[]), makeBoolExp(false)):
     makeIfExp(makeAppExp(makePrimOp("eq?"), [makeVarRef(msg.var), makeLitExp(makeSymbolSExp( first(vars).var))])
-    , first(vals), rewriteNewIfExp(msg, rest(vars), rest(vals)));
-*/
-
-export const rewriteNewIfExp = (msg: VarDecl, vars: VarDecl[], vals: CExp[]): CExp => {
-    //  AppExp[eq?, [msg, mtd.name]]
-    let x = makeAppExp(makePrimOp("eq?"), [makeVarRef(msg.var), makeLitExp(makeSymbolSExp( first(vars).var))]);
-    if(vars.length === 1 && vals.length === 1){
-        return makeIfExp(x, first(vals), makeBoolExp(false));
-    }else{
-        return makeIfExp(x, first(vals), rewriteNewIfExp(msg, rest(vars), rest(vals)));
-    }
-}
-
+    , makeAppExp(first(vals),[]), rewriteNewIfExp(msg, rest(vars), rest(vals)));
 
 /*
 Purpose: Transform L31 AST to L3 AST

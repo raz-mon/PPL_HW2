@@ -35,7 +35,7 @@ console.log(a.reduce( (acc: number[][], curr: number) => acc.concat([[curr]]) , 
 const prgR: Result<Program> = parseL31(`(L31 (class (a b) ((first (lambda () a)) (second (lambda () b)) (sum (lambda () (+ a b))))))`);
 if(isOk(prgR)){
     let x = prgR.value.exps[0];
-    console.log(unparseL31(x));
+    //console.log(unparseL31(x));
     if(isClassExp(x)){
         console.log(unparseL31(class2proc(x)));
         //console.log(JSON.stringify(class2proc(x),null,2));
