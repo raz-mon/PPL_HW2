@@ -23,21 +23,11 @@ console.log("\n\n");
 console.log(JSON.stringify(bind(p(`(class (a b) ((first (lambda () a)) ))`), 
         (s: Sexp) => bind(parseL31Exp(s),  L31ToL3 ) ), null, 2) )
 */
-console.log(JSON.stringify(bind(p(`(class (a b) ((first (class (a b) ((first (lambda () a)) ))) ))`), 
-        (s: Sexp) => bind(parseL31Exp(s),  L31ToL3 ) ), null, 2) )
+//console.log(JSON.stringify(bind(p(`(class (a b) ((first (class (a b) ((first (lambda () a)) ))) ))`), 
+//        (s: Sexp) => bind(parseL31Exp(s),  L31ToL3 ) ), null, 2) )
 
-
-
-
-
-
-
-
-
-
-
-
-
+console.log(parseL31(`(L31 (+ 3 5 7))`));
+console.log(JSON.stringify(parseL31(`(L31 (+ 3 5 7))`), null, 2));
 
 /*
 console.log(p("1")); // { tag: 'Ok', value: '1' }
