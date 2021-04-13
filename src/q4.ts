@@ -1,15 +1,9 @@
-//import { Exp, Program } from '../imp/L3-ast';
-import { isNumber, isArray, isString } from '../shared/type-predicates';
-import { Result, makeFailure, makeOk } from '../shared/result';
-//import { unparseL31 } from './L31-ast';
-import { parse as p, isSexpString, isToken, isCompoundSexp } from "../shared/parser";       // added isCompundSexp
-import { append, is, map } from 'ramda';
-import { first } from '../shared/list';
-
-
-import {isBoolExp, isProcExp, isLetExp, isAppExp, isAtomicExp, isBinding, isCompoundExp, isDefineExp,
-        isExp, isIfExp, isLitExp, isCExp, isNumExp, isVarDecl, isVarRef, isPrimOp, isProgram,
-        Exp, Program, AppExp, PrimOp, VarDecl, ProcExp, parseL3Exp} from "../imp/L3-ast";
+import { isNumber } from '../shared/type-predicates';
+import { Result, makeOk } from '../shared/result';
+import { map } from 'ramda';
+import {isBoolExp, isProcExp, isAppExp, isDefineExp,
+        isIfExp, isNumExp, isVarRef, isPrimOp, isProgram,
+        Exp, Program, AppExp, PrimOp, VarDecl, ProcExp} from "../imp/L3-ast";
 
 
 /*
@@ -29,6 +23,7 @@ import {isBoolExp, isProcExp, isLetExp, isAppExp, isAtomicExp, isBinding, isComp
 <var-ref> ::= an identifier token
 <var-decl> ::= an identifier token
 */
+
 export type Value = SExpValue;
 export type SExpValue = number | boolean | PrimOp;
 
@@ -40,10 +35,14 @@ Type: [EXP | Program] => Result<string>
 export const l2ToPython = (exp: Exp | Program): Result<string>  => 
     makeOk(unparsel2ToPython(exp));
 
+/**
+ * unparsel2ToPython unparse the Exp or Program into a string in python
+ * @param exp: Exp | Program
+ * @returns string represent python formulation
+ */
 export const unparsel2ToPython = (exp: Exp | Program): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
     isNumExp(exp) ? valueToString(exp.val) :
-    //isStrExp(exp) ? valueToString(exp.val) :
     isVarRef(exp) ? exp.var :
     isProcExp(exp) ? `${unparseProcExp2Python(exp)}` :
     isIfExp(exp) ? `(${unparsel2ToPython(exp.then)} if ${unparsel2ToPython(exp.test)} else ${unparsel2ToPython(exp.alt)})` :
@@ -51,28 +50,52 @@ export const unparsel2ToPython = (exp: Exp | Program): string =>
     isPrimOp(exp) ? opToString(exp) :
     isDefineExp(exp) ? `${exp.var.var} = ${unparsel2ToPython(exp.val)}` :
     isProgram(exp) ? `${unparseL2PythonExps(exp.exps)}` :
-    //exp;
     "";     // Temporary only!!
 
+/**
+ * Unparse procExp into a string in python
+ * @param pe: ProcExp
+ * @returns string represent python formulation
+ */
 export const unparseProcExp2Python = (pe: ProcExp): string => 
     `(lambda ${map((p: VarDecl) => p.var, pe.args).join(",")} : ${unparseL2PythonExps(pe.body)})`
 // Deleted the whitespace after every , in the arguments. Yet this doesn't feel right. Why not have the whitespace?
 
+/**
+ * Unparse multiple expressions into a string
+ * @param les : Exp[]
+ * @returns string represent python formulation
+ */
 export const unparseL2PythonExps = (les: Exp[]): string =>
     map(unparsel2ToPython, les).join("\n");
 
+/**
+ * unparseL2PythonApp check wether app is PrimOp/ProcExp/other and send to the relevant unparser
+ * @param app : AppExp
+ * @returns string represent python formulation
+ */
 export const unparseL2PythonApp = (app: AppExp): string =>
     isPrimOp(app.rator) ? `(${unparseLExpsWithPrimOp(app.rands, app.rator)})`:
     isProcExp(app.rator) ? `${unparseProcExp2Python(app.rator)}(${map(unparsel2ToPython, app.rands).join(",")})`:
     `${unparsel2ToPython(app.rator)}(${map(unparsel2ToPython, app.rands).join(",")})`;
 
-
+/**
+ * unparse an expression with a primop operator
+ * @param les : Exp[]
+ * @param op : PrimOp
+ * @returns string represent python formulation
+ */
 export const unparseLExpsWithPrimOp = (les: Exp[], op: PrimOp): string =>
     les.length === 0 ? opToString(op) :
     les.length === 1 ? opToString(op) + " " + unparsel2ToPython(les[0]) :
     (map(unparsel2ToPython, les.slice(0, les.length - 1)).join(" " + op.op + " ")).concat(" " + 
     opToString(op) + " " + unparsel2ToPython(les[les.length - 1]));
-    
+
+/**
+ * can return True/False , a number litteral or primop token
+ * @param val 
+ * @returns a string represent value's token in python
+ */    
 export const valueToString = (val: Value): string =>
     isNumber(val) ?  val.toString() :
     val === true ? 'True' :
@@ -80,6 +103,11 @@ export const valueToString = (val: Value): string =>
     isPrimOp(val) ? opToString(val):
     val;
 
+/**
+ * Convert primOp litteral in L2 into a litteral in python
+ * @param primOp : primOp
+ * @returns primitive litteral in python
+ */
 export const opToString = (primOp: PrimOp): string =>
     primOp.op === "+" ? '+' :
     primOp.op === "*" ? '*' :
