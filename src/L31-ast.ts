@@ -230,6 +230,11 @@ const parseProcExp = (vars: Sexp, body: Sexp[]): Result<ProcExp> =>
                                                  (cexps: CExp[]) => makeOk(makeProcExp(map(makeVarDecl, vars), cexps))) :
     makeFailure(`Invalid vars for ProcExp`);
 
+/*
+ * Purpose: Transform Sexp to Result<ClassExp>
+ * Signature: parseClassExp(classExp)
+ * Type: Sexp => Result<ClassExp>
+ */
 export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
     const x = first(params);
     const y = second(params);
@@ -238,6 +243,11 @@ export const parseClassExp = (params: Sexp[]): Result<ClassExp> => {
         makeFailure(`Invalid Exp for fields`);
 }
 
+/*
+ * Purpose: Transform (Sexp[], Sexp[]) to Result<ClassExp>
+ * Signature: parseGoodClassExp(Sexp[], Sexp[])
+ * Type: (Sexp[], Sexp[]) => Result<ClassExp>
+ */
 export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<ClassExp> =>
     isEmpty(fields) ? makeFailure("fields is empty") :
     //allT(isToken, fields) ? makeFailure("All fields must be tokens") :      // Is this not relevant due to the 'isIdentifier' check?
@@ -248,9 +258,19 @@ export const parseGoodClassExp = (fields: Sexp[], methods: Sexp[]): Result<Class
     safe2((fields: VarDecl[], methods: Binding[]) => makeOk(makeClassExp(fields, methods)))
     (makeOk(map(makeVarDecl, fields)), mapMethods2Bindings(methods) );
 
+/*
+ * Purpose: Map methods array to Bindings array.
+ * Signature: mapMethods2Bindings(Sexp[])
+ * Type: (Sexp[]) => Result<Binding[]>
+ */
 export const mapMethods2Bindings = (methods: Sexp[]): Result<Binding[]> =>
     mapResult(mapSexp2Binding , methods);
 
+/*
+ * Purpose: Map a method to a Binding.
+ * Signature: mapSexp2Binding(Sexp)
+ * Type: (Sexp) => Result<Binding>
+ */
 export const mapSexp2Binding = (single: Sexp): Result<Binding> => {
     if (isCompoundSexp(single)) {
         const x: Sexp = first(single);
@@ -327,6 +347,11 @@ const unparseProcExp = (pe: ProcExp): string =>
 const unparseLetExp = (le: LetExp) : string => 
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
+/**
+ * Purpose: Transform ClassExp to Result<ClassExp>
+ * Signature: unparseClassExp(classExp)
+ * Type: ClassExp => string
+ */
 const unparseClassExp = (ce: ClassExp): string =>   
     `(class (${map((vd: VarDecl) => vd.var, ce.fields).join(" ")}) (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, ce.methods).join(" ")}))`          // whitespace or new-line? 
 
